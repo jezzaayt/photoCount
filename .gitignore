@@ -1,2 +1,15 @@
-.aider*
-.env
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyi
+*.pyj
+.vscode/
+.venv/
+pipenv/
+pytest_cache/
+.notebook/
+jupyter*.json
+.DS_Store
+Thumbs.db
