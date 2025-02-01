@@ -15,7 +15,7 @@ def count_files(directory=".", extension=""):
 if __name__ == "__main__":
     extensions = ['.raw', '.cr3', '.cr2', '.jpeg', '.png', ".jpg", ".tif", ".tiff", ".bmp", ".svg", 
     ".gif", ".mp4", ".mov", ".webp",".flv", ".mkv", ".wmv", ".m4v", ".3gp", ".mpg", ".mpeg", ".avi", ".heic", ".heif" ]
-    directory = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath()
+    directory = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath(".")
    # get directory from command line arguments
     print(directory)
     data = defaultdict(list)  # This will hold the counts and filenames for each extension
@@ -25,7 +25,10 @@ if __name__ == "__main__":
         data['extension'].append(ext.strip('.'))
         data['count'].append(count)
         total_count += count
-    data['percentage'] = [f'{(c/total_count)*100:.2f}%' for c in data['count']]
+    try:
+        data['percentage'] = [f'{(c/total_count)*100:.2f}%' for c in data['count']] 
+    except ZeroDivisionError:
+        data['percentage'] = [f'{0:.2f}%' for c in data['count']]
     print(sum(data['count']))
     df = pl.DataFrame(data)  # Create a DataFrame from the dictionary
     
