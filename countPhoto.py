@@ -2,6 +2,7 @@ import os
 import polars as pl 
 import sys
 from collections import defaultdict
+import matplotlib.pyplot as plt
 
 def count_files(directory=".", extension=""):
     filenames = []
@@ -35,3 +36,24 @@ if __name__ == "__main__":
     df = df.sort('count', descending=True).select(['extension', 'count', 'percentage'])
     print(df)
     df.write_csv('photo_video_count.csv')
+    if len(df) > 0:
+        filtered_df = df.filter(pl.col("count") > 0)
+
+
+        fig, ax = plt.subplots()
+    
+     
+        ax.scatter(filtered_df['extension'], filtered_df['count']) 
+        ax.set_xlabel('Extensions')
+        ax.set_ylabel('Count')
+        ax.set_title('Scatter plot of Extension by Count')
+
+        # Add text labels for each point in the scatter plot
+        for i, txt in enumerate(filtered_df['count']):
+            ax.annotate(txt, (filtered_df['extension'][i], filtered_df['count'][i]))
+        
+        # Set y-axis limits to include all data points within a certain range
+        ax.set_ylim([0, max(filtered_df['count']) * 1.2]) # multiply by 1.2 for a bit of extra space at the top
+
+        fig.savefig('scatter_plot.png', dpi= 300) 
+        
