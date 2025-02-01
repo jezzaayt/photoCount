@@ -13,3 +13,7 @@ pytest_cache/
 jupyter*.json
 .DS_Store
 Thumbs.db
+
+.aider
+.idea
+.gitignore   
