@@ -5,6 +5,22 @@ This Python script is designed to count the number of different photo (image) an
 
 # Usage:
 Run countPhoto.py [directory] in your command line interface (CLI). If no directory is specified, it defaults to the current working directory.
+
+You can specify the directory as a command line argument, like this:
+
+```python
+python countPhoto.py /path/to/directory
+```
+
+You may need to specific it like the following if there is a space. 
+```python
+python countPhoto.py "/My Folder/to/directory"
+```
+
+If no directory is specified, the script will use the current working directory.
+
+
+
 It will print out each extension type and its count in descending order.
 At the end, a CSV file named 'photo_video_count.csv' will be created with the same information in tabular format for easy viewing or further analysis.
 # Features:
