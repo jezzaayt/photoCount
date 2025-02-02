@@ -7,7 +7,7 @@ from collections import defaultdict
 from tqdm import tqdm
 
 
-
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 def count_files(directory=".", extension=""):
     try:
         filenames = []
@@ -26,11 +26,15 @@ def parse_args():
         directory = sys.argv[1]
     else:
         directory = os.path.abspath(".")
+    if len(sys.argv) > 2:
+        output_csv = sys.argv[2]
+    else:
+        output_csv = 'photo_video_count.csv'
     
     extensions = ['.raw', '.cr3', '.cr2', '.jpeg', '.png', ".jpg", ".tif", ".tiff", ".bmp", ".svg", 
     ".gif", ".mp4", ".mov", ".webp",".flv", ".mkv", ".wmv", ".m4v", ".3gp", ".mpg", ".mpeg", ".avi", ".heic", ".heif", ".json"] # list of extensions to count 
     # JSON is here as Google Photo exports includes that as part of some photos 
-    return directory, extensions
+    return directory, extensions, output_csv
 
 
 def plot_count(df):
@@ -47,7 +51,7 @@ def plot_count(df):
     ax.set_ylim([0, max(df['count']) * 1.2]) # multiply by 1.2 for a bit of extra space at the top
     fig.savefig('scatter_plot.png', dpi= 300)
 
-def main(directory, extensions):
+def main(directory, extensions, output_csv):
     
     if not os.path.exists(directory):
         logging.error(f"Directory {directory} does not exist")
@@ -76,7 +80,7 @@ def main(directory, extensions):
     df = df.filter(pl.col("count") > 0)
     
     print(df)
-    df.write_csv('photo_video_count.csv')
+    df.write_csv(output_csv)
     
     if not df.is_empty():
         plot_count(df)
@@ -84,6 +88,6 @@ def main(directory, extensions):
 
 if __name__ == "__main__":
 
-    directory, extensions = parse_args()
-    main(directory, extensions)
+    directory, extensions, output_csv = parse_args()
+    main(directory, extensions, output_csv)
     
