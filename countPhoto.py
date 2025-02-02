@@ -72,13 +72,13 @@ def main(directory, extensions, output_csv):
         return
 
     try:
-        data['percentage'] = [f'{(c/total_count)*100:.2f}%' for c in data['count']]
+        data['percentage'] = [f'{(c/total_count)*100:.3f}%' for c in data['count']]
     except ZeroDivisionError:
         data['percentage'] = ['0.00%'] * len(data['count'])
 
     df = pl.DataFrame(data).sort('count', descending=True)
     df = df.filter(pl.col("count") > 0)
-    
+    print(sum(df['count']))
     print(df)
     df.write_csv(output_csv)
     
