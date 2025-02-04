@@ -3,7 +3,6 @@ import polars as pl
 import sys
 import matplotlib.pyplot as plt
 import logging
-from collections import defaultdict
 from tqdm import tqdm
 
 
@@ -56,34 +55,45 @@ def main(directory, extensions, output_csv):
     if not os.path.exists(directory):
         logging.error(f"Directory {directory} does not exist")
         sys.exit()
+
     
-    data = defaultdict(list)
-    total_count = 0
-    
+    file_list = []
     for ext in tqdm(extensions, desc="Counting files"):
         count, filenames = count_files(directory, ext.strip('.'))
         if count > 0:
-            data['extension'].append(ext.strip('.'))
-            data['count'].append(count)
-            total_count += count
+            file_list.extend(filenames)
+        
+    df = pl.DataFrame({
+        'filename': file_list,
+        'extension': [os.path.splitext(filename)[1][1:] for filename in file_list]
+
+    })
+    # Aggregate and count unique extensions
+    extension_counts = (
+        df.lazy()
+        .group_by('extension')
+        .agg(pl.len().alias('count'))
+        .sort('count', descending=True)
+        .filter(pl.col("count") > 0)
+    ).collect()
+    print(f"Total files found: {sum(extension_counts['count'])}")
+    print(extension_counts)
+
+    # Add percentage column
+    total_count = extension_counts.get_column('count').sum()
+    extension_counts = extension_counts.with_columns(
+        pl.col('count').map_elements(lambda x: f'{(x/total_count)*100:.3f}%', return_dtype=pl.Utf8).alias('percentage')
+    )
+    print(extension_counts)
+#     # Write to CSV
     
-    if total_count == 0:
+    if not extension_counts.is_empty():
+        extension_counts.write_csv(output_csv)
+        plot_count(extension_counts)
+    if extension_counts.is_empty():
         logging.info("No files found with specified extensions.")
         return
 
-    try:
-        data['percentage'] = [f'{(c/total_count)*100:.3f}%' for c in data['count']]
-    except ZeroDivisionError:
-        data['percentage'] = ['0.00%'] * len(data['count'])
-
-    df = pl.DataFrame(data).sort('count', descending=True)
-    df = df.filter(pl.col("count") > 0)
-    print(sum(df['count']))
-    print(df)
-    df.write_csv(output_csv)
-    
-    if not df.is_empty():
-        plot_count(df)
 
 
 if __name__ == "__main__":
