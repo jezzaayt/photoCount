@@ -60,8 +60,13 @@ def main(directory, extensions, output_csv):
         'extension': []
     })
 
+    file_list = []
+    
+
     for ext in tqdm(extensions, desc="Counting files"):
         count, filenames = count_files(directory, ext.strip('.'))
+
+        
         if count > 0:
             file_list.extend(filenames)
     # Create a DataFrame from the list of file names
@@ -70,6 +75,7 @@ def main(directory, extensions, output_csv):
         'extension': [os.path.splitext(filename)[1][1:] for filename in file_list]
 
     })
+    print(df)
     # Aggregate and count unique extensions
     extension_counts = (
         df.lazy()
@@ -77,12 +83,16 @@ def main(directory, extensions, output_csv):
         .agg(pl.len().alias('count'))
         .sort('count', descending=True)
         .filter(pl.col("count") > 0)
+        .collect()
     )
 
     print(f"Total files found: {sum(extension_counts['count'])}")
-    print(percentage_df)
+    
+    extension_counts.write_csv(output_csv)
+    if not extension_counts.is_empty():
+        plot_count(extension_counts)
+    return extension_counts
 
-   
 
 def plot_count(df):
     fig, ax = plt.subplots()
@@ -102,8 +112,5 @@ if __name__ == "__main__":
     extensions = ['.raw', '.cr3', '.cr2', '.jpeg', '.png', ".jpg", ".tif", ".tiff", ".bmp", ".svg",
                   ".gif", ".mp4", ".mov", ".webp", ".flv", ".mkv", ".wmv", ".m4v", ".3gp", ".mpg",
                   ".mpeg", ".avi", ".heic", ".heif", ".json"]
-
-    percentage_df = count_files(directory, extensions)
-    
-    if not percentage_df.is_empty():
-        plot_count(percentage_df)
+    directory, extensions, output_csv = parse_args()
+    main(directory, extensions, output_csv)
