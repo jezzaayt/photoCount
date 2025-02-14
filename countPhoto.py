@@ -35,20 +35,6 @@ def parse_args():
     return directory, extensions, output_csv
 
 
-def plot_count(df):
- 
-    fig, ax = plt.subplots()
-    ax.scatter(df['extension'], df['count']) 
-    ax.set_xlabel('Extensions')
-    ax.set_ylabel('Count')
-    ax.set_title('Scatter plot of Extension by Count')
-    # Add text labels for each point in the scatter plot
-    for i, txt in enumerate(df['count']):
-        ax.annotate(txt, (df['extension'][i], df['count'][i]))
-    # Set y-axis limits to include all data points within a certain range
-    ax.set_ylim([0, max(df['count']) * 1.2]) # multiply by 1.2 for a bit of extra space at the top
-    fig.savefig('scatter_plot.png', dpi= 300)
-
 def main(directory, extensions, output_csv):
     # Check that the directory exists
     if not os.path.exists(directory):
