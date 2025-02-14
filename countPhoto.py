@@ -20,16 +20,20 @@ def count_files(directory=".", extension=""):
         return 0, []
 
 def parse_args():
+    
     if len(sys.argv) > 1:
         directory = sys.argv[1]
     else:
         directory = os.path.abspath(".")
     if len(sys.argv) > 2:
-        output_csv = sys.argv[2]
+        output_csv = sys.argv[2] 
     else:
         output_csv = 'photo_video_count.csv'
-    
-    extensions = ['.raw', '.cr3', '.cr2', '.jpeg', '.png', ".jpg", ".tif", ".tiff", ".bmp", ".svg", 
+    extensions = [] 
+
+    if not extensions:
+        logging.warning("No extension provided, defaulting to defaults")
+        extensions = ['.raw', '.cr3', '.cr2', '.jpeg', '.png', ".jpg", ".tif", ".tiff", ".bmp", ".svg", 
     ".gif", ".mp4", ".mov", ".webp",".flv", ".mkv", ".wmv", ".m4v", ".3gp", ".mpg", ".mpeg", ".avi", ".heic", ".heif", ".json"] # list of extensions to count 
     # JSON is here as Google Photo exports includes that as part of some photos 
     return directory, extensions, output_csv
